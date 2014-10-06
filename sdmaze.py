@@ -28,8 +28,8 @@ class Maze(object):
 		def __repr__(self):
 			return str(self)
 
-		def copyNode(self):
-			return Node(self.value, self.blocked)
+		def __deepcopy__(self, memo):
+			return Maze.Node(self.value, self.blocked)
 
 		def isBlocked(self):
 			return self.blocked
@@ -235,12 +235,13 @@ def main():
 		mazeLines.append(line)
 
 	print(mazeLines)
-	m = Maze(mazeLines)
+	initialMaze = Maze(mazeLines)
+
 
 	#move_count = 0
 	
 	#print("Number of moves: " + str(move_count))
-	graph[m] = []
+	graph[initialMaze] = []
 	while([] in graph.values()):
 		newGraph = graph.copy()
 		for key in graph.keys():
@@ -262,6 +263,21 @@ def main():
 			print("")
 		print("-------------------------------")
 	printGraphStats(graph)
+
+	print("Initial State")
+	print(initialMaze)
+	print("First Neighboors:")
+	for n in graph[initialMaze]:
+		print(n)
+		print("")
+
+	winnable = False
+	for m in graph.keys():
+		if(m.isGoal()):
+			winnable = True
+			break
+	print("Is it possible to win?")
+	print(winnable)
 
 
 
