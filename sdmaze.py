@@ -1,6 +1,8 @@
 #!/bin/python
 
 import sys
+import copy
+import random
 
 initial_positions = [4,2,3,5,1,6]
 
@@ -28,6 +30,12 @@ class Maze(object):
 
 		def copyNode(self):
 			return Node(self.value, self.blocked)
+
+		def isBlocked(self):
+			return self.blocked
+
+		def getValue(self):
+			return self.value
 			
 			
 
@@ -78,6 +86,21 @@ class Maze(object):
 
 		return ret
 
+	def __eq__(self, other):
+		return self.current == other.current and self.position == other.position
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def __hash__(self):
+		return hash((self.current, tuple(self.position)))
+
+	def isGoal(self):
+		if(self.board[self.goal[0]][self.goal[1]].getValue() == 1):
+			return True
+		else:
+			return False
+
 	'''
 	move
 
@@ -88,10 +111,18 @@ class Maze(object):
 				4 - south
 	'''
 	def move(self, direction):
-
+		'''
 		print('Making move')
+		if(direction == 1):
+			print("Moving west  (<-)")
+		elif(direction == 2):
+			print("Moving north (^^)")
+		elif(direction == 3):
+			print("Moving east  (->)")
+		elif(direction == 4):
+			print("Moving south (\/)")
 		#print('Currently at ' + self.current[0] + ' , ' + self.current[1])
-
+		'''
 		# Start solving
 
 		left = 0
@@ -101,7 +132,29 @@ class Maze(object):
 		top = 4
 		bottom = 5
 
-		position = self.position
+		position = copy.copy(self.position)
+		
+		c_row, c_col = self.current
+		
+		n_row, n_col = self.current
+
+		if(direction == 1):
+			n_col -= 1
+		elif(direction == 2):
+			n_row -= 1
+		elif(direction == 3):
+			n_col += 1
+		elif(direction == 4):
+			n_row += 1
+
+		if(n_col < 0 or n_row < 0):
+			return False
+
+		if(n_row >= len(self.board) or n_col >= len(self.board[0])):
+			return False
+
+		if(self.board[n_row][n_col].isBlocked()):
+			return False
 
 		if(direction == 1):
 			temp = position[top]
@@ -130,45 +183,40 @@ class Maze(object):
 		else:
 			print("Error incorrect move")
 			return False
-		
-		# Nuke the current entry
-		c_row, c_col = self.current
-		self.board[c_row][c_col] = self.Node()
-		n_row, n_col = self.current
 
-		if(direction == 1):
-			n_col -= 1
-		elif(direction == 2):
-			n_row += 1
-		elif(direction == 3):
-			n_col += 1
-		elif(direction == 4):
-			n_row -= 1
+		if(position[top] == 6):
+			return False
+
+		# Nuke the current entry
+		self.board[c_row][c_col] = self.Node()
 
 		self.current = (n_row, n_col)
 		self.board[n_row][n_col] = self.Node(value = position[top])
+		self.position = position
+
+		return True
 
 
 
+def copyMaze(maze):
+	return copy.deepcopy(maze)
 
+def buildNeighboors(maze):
 
-		return position
+	ret = []
+	for dir in range(1,5):
+		temp = copyMaze(maze)
+		if(temp.move(dir)):
+			ret += [temp]
 
+	return ret
 
-
-
-
-
-
-
-
-
-
-
-	
+def printGraphStats(graph):
+	print("Number of possible states: " + str(len(graph.keys())))
 
 def main():
 	args = sys.argv
+	graph = {}
 
 	if(len(args) <= 1):
 		print("Usage: sdmaze <filename>")
@@ -189,10 +237,32 @@ def main():
 	print(mazeLines)
 	m = Maze(mazeLines)
 
-	m.move(3)
-	print(str(m))
-	m.move(3)
-	print(str(m))
+	#move_count = 0
+	
+	#print("Number of moves: " + str(move_count))
+	graph[m] = []
+	while([] in graph.values()):
+		newGraph = graph.copy()
+		for key in graph.keys():
+			if len(graph[key]) == 0:
+				neigh = buildNeighboors(key)
+				newGraph[key] = neigh
+
+				for n in neigh:
+					if not (n in graph.keys()):
+						newGraph[n] = []
+		graph = newGraph
+
+	for m in graph.keys():
+		print("State")
+		print(m)
+		print("Neighboors")
+		for n in graph[m]:
+			print(n)
+			print("")
+		print("-------------------------------")
+	printGraphStats(graph)
+
 
 
 
