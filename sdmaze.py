@@ -11,7 +11,7 @@ class Maze(object):
 		def __init__(self, value = None, blocked = False):
 			self.blocked = blocked
 			self.value = value
-			self.position = initial_positions
+			
 
 		def __str__(self):
 
@@ -37,6 +37,7 @@ class Maze(object):
 		self.goal = (0,0)
 		self.current = (0,0)
 		self.board = []
+		self.position = initial_positions
 
 		rowIndex = 0
 		for row in board:
@@ -89,10 +90,7 @@ class Maze(object):
 	def move(self, direction):
 
 		print('Making move')
-		print('Currently at ' + self.current[0] + ' , ' + self.current[1])
-		
-		
-		#value = self.board[self.current[0]][self.current[1]]
+		#print('Currently at ' + self.current[0] + ' , ' + self.current[1])
 
 		# Start solving
 
@@ -103,10 +101,7 @@ class Maze(object):
 		top = 4
 		bottom = 5
 
-		
-
-		#position = initial_positions # TEMPORARY
-
+		position = self.position
 
 		if(direction == 1):
 			temp = position[top]
@@ -126,12 +121,36 @@ class Maze(object):
 			position[left] = position[bottom]
 			position[bottom] = position[right]
 			position[right] = temp
-		else:
+		elif(direction == 4):
 			temp = position[top]
 			position[top] = position[north]
 			position[north] = position[bottom]
 			position[bottom] = position[south]
 			position[south] = temp
+		else:
+			print("Error incorrect move")
+			return False
+		
+		# Nuke the current entry
+		c_row, c_col = self.current
+		self.board[c_row][c_col] = self.Node()
+		n_row, n_col = self.current
+
+		if(direction == 1):
+			n_col -= 1
+		elif(direction == 2):
+			n_row += 1
+		elif(direction == 3):
+			n_col += 1
+		elif(direction == 4):
+			n_row -= 1
+
+		self.current = (n_row, n_col)
+		self.board[n_row][n_col] = self.Node(value = position[top])
+
+
+
+
 
 		return position
 
@@ -170,25 +189,15 @@ def main():
 	print(mazeLines)
 	m = Maze(mazeLines)
 
+	m.move(3)
+	print(str(m))
+	m.move(3)
+	print(str(m))
 
-
-def testDieRoll():
-	print("[L, N, R, S, T, B]")
-	print(initial_positions)
-
-	temp_positions = [4,2,3,5,1,6]
-	position = move(4, temp_positions)
-	print(position)
-	position = move(1, temp_positions)
-	print(position)
-	position = move(2, temp_positions)
-	print(position)
-	position = move(3, temp_positions)
-	print(position)
 
 
 
 
 if __name__ == '__main__':
-	#main()
-	testDieRoll()
+	main()
+	#testDieRoll()
