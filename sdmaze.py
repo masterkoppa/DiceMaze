@@ -3,6 +3,7 @@
 import sys
 import copy
 import random
+from queue import PriorityQueue
 
 initial_positions = [4,2,3,5,1,6]
 
@@ -13,17 +14,15 @@ class Maze(object):
 		def __init__(self, value = None, blocked = False):
 			self.blocked = blocked
 			self.value = value
-			
 
 		def __str__(self):
-
 			if self.blocked:
-				return "*"
+				return "* "
 			
 			if self.value == None:
-				return "."
+				return ". "
 			else:
-				return str(self.value)
+				return str(self.value) + " "
 
 		def __repr__(self):
 			return str(self)
@@ -68,9 +67,9 @@ class Maze(object):
 			rowIndex += 1
 			self.board.append(nodeRow)
 
-		print("Start:  " + str(self.start))
-		print("Goal:   " + str(self.goal))
-		print(str(self))
+		#print("Start:  " + str(self.start))
+		#print("Goal:   " + str(self.goal))
+		#print(str(self))
 
 	def __str__(self):
 		ret = ""
@@ -79,7 +78,12 @@ class Maze(object):
 		for row in self.board:
 			colIndex = 0
 			for col in row:
-				ret += str(col)
+				if rowIndex == self.goal[0] and colIndex == self.goal[1] and col.getValue() == None:
+					ret += 'G '
+				elif rowIndex == self.start[0] and colIndex == self.start[1] and col.getValue() == None:
+					ret += 'S '
+				else:
+					ret += str(col)
 				colIndex += 1
 			rowIndex += 1
 			ret += "\n"
@@ -87,10 +91,21 @@ class Maze(object):
 		return ret
 
 	def __eq__(self, other):
+		if not isinstance(other,Maze):
+			return False
+
 		return self.current == other.current and self.position == other.position
 
 	def __ne__(self, other):
 		return not self.__eq__(other)
+
+	'''
+	'''
+	def __lt__(self, other):
+		if(self == other):
+			return 0
+		else:
+			return -1 # Return this if there's a tie in heuristics
 
 	def __hash__(self):
 		return hash((self.current, tuple(self.position)))
@@ -198,6 +213,50 @@ class Maze(object):
 
 
 
+def aStar(graph, initialMaze, heuristic):
+	
+	frontier = PriorityQueue()
+	frontier.put(initialMaze, 0)
+	came_from = {}
+	cost_so_far = {}
+	came_from[initialMaze] = None
+	cost_so_far[initialMaze] = 0
+
+	while not frontier.empty():
+		current = frontier.get()
+
+		if current.isGoal():
+			printSearchStats(came_from, graph)
+			return buildPath(came_from, current)
+
+		for n in graph[current]:
+			new_cost = cost_so_far[current] + 1
+			if n not in cost_so_far or new_cost < cost_so_far[n]:
+				cost_so_far[n] = new_cost
+				priority = new_cost + heuristic(n)
+				frontier.put(n, priority)
+				came_from[n] = current
+
+
+
+def printSearchStats(parent_graph, graph):
+	nodes_visited = len(parent_graph.keys())
+	nodes_in_graph = len(graph.keys())
+
+	print("Number of nodes visited: " + str(nodes_visited))
+	print("Number of nodes created: " + str(nodes_in_graph))
+
+
+def buildPath(parent_graph, goalNode):
+	if(goalNode == None):
+		return []
+	else:
+		return buildPath(parent_graph, parent_graph[goalNode]) + [goalNode]
+
+
+
+
+
 def copyMaze(maze):
 	return copy.deepcopy(maze)
 
@@ -234,7 +293,7 @@ def main():
 
 		mazeLines.append(line)
 
-	print(mazeLines)
+	#print(mazeLines)
 	initialMaze = Maze(mazeLines)
 
 
@@ -253,7 +312,7 @@ def main():
 					if not (n in graph.keys()):
 						newGraph[n] = []
 		graph = newGraph
-
+	'''
 	for m in graph.keys():
 		print("State")
 		print(m)
@@ -263,21 +322,20 @@ def main():
 			print("")
 		print("-------------------------------")
 	printGraphStats(graph)
-
-	print("Initial State")
-	print(initialMaze)
-	print("First Neighboors:")
-	for n in graph[initialMaze]:
-		print(n)
-		print("")
+	'''
 
 	winnable = False
 	for m in graph.keys():
 		if(m.isGoal()):
 			winnable = True
 			break
-	print("Is it possible to win?")
-	print(winnable)
+	#print("Is it possible to win?")
+	#print(winnable)
+
+	results = aStar(graph, initialMaze, lambda current_state: 0)
+
+	for i in results:
+		print(i)
 
 
 
