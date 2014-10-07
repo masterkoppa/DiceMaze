@@ -2,10 +2,13 @@
 
 import sys
 import copy
+import math
 import random
 from queue import PriorityQueue
 
 initial_positions = [4,2,3,5,1,6]
+
+#heuristic_in_use = lambda state : -1
 
 class Maze(object):
 
@@ -98,14 +101,6 @@ class Maze(object):
 
 	def __ne__(self, other):
 		return not self.__eq__(other)
-
-	'''
-	'''
-	def __lt__(self, other):
-		if(self == other):
-			return 0
-		else:
-			return -1 # Return this if there's a tie in heuristics
 
 	def __hash__(self):
 		return hash((self.current, tuple(self.position)))
@@ -211,19 +206,36 @@ class Maze(object):
 
 		return True
 
+def manhattan_distance(maze):
+	c_row, c_col = maze.current
+	g_row, g_col = maze.goal
 
+	return math.fabs(c_row - g_row) + math.fabs(c_col - g_col)
+
+def euclidian_distance(maze):
+	c_row, c_col = maze.current
+	g_row, g_col = maze.goal
+
+	return math.sqrt(math.pow(c_row - c_col, 2) + math.pow(g_row - g_col, 2))
+
+class Wrapper(object):
+	def __init__(self, maze, priority):
+		self.maze = maze
+		self.priority = priority
+
+	def __lt__(self, other):
+		return self.priority < other.priority
 
 def aStar(graph, initialMaze, heuristic):
-	
 	frontier = PriorityQueue()
-	frontier.put(initialMaze, 0)
+	frontier.put(Wrapper(initialMaze, 0))
 	came_from = {}
 	cost_so_far = {}
 	came_from[initialMaze] = None
 	cost_so_far[initialMaze] = 0
 
 	while not frontier.empty():
-		current = frontier.get()
+		current = frontier.get().maze
 
 		if current.isGoal():
 			printSearchStats(came_from, graph)
@@ -234,7 +246,7 @@ def aStar(graph, initialMaze, heuristic):
 			if n not in cost_so_far or new_cost < cost_so_far[n]:
 				cost_so_far[n] = new_cost
 				priority = new_cost + heuristic(n)
-				frontier.put(n, priority)
+				frontier.put(Wrapper(n, priority))
 				came_from[n] = current
 
 
@@ -332,10 +344,15 @@ def main():
 	#print("Is it possible to win?")
 	#print(winnable)
 
-	results = aStar(graph, initialMaze, lambda current_state: 0)
+	#results = aStar(graph, initialMaze, lambda current_state: 0)
+	
+	results = aStar(graph, initialMaze, manhattan_distance)
+	#results = aStar(graph, initialMaze, euclidian_distance)
 
 	for i in results:
 		print(i)
+
+	print(len(results))
 
 
 
