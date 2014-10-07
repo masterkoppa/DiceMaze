@@ -3,14 +3,10 @@
 import sys
 import copy
 import math
-import random
 from queue import PriorityQueue
 
-initial_positions = [4,2,3,5,1,6]
-
-#heuristic_in_use = lambda state : -1
-
 class Maze(object):
+	initial_positions = [4,2,3,5,1,6]
 
 	class Node(object):
 		"""docstring for Node"""
@@ -47,7 +43,7 @@ class Maze(object):
 		self.goal = (0,0)
 		self.current = (0,0)
 		self.board = []
-		self.position = initial_positions
+		self.position = Maze.initial_positions
 
 		rowIndex = 0
 		for row in board:
@@ -69,10 +65,6 @@ class Maze(object):
 				colIndex +=1
 			rowIndex += 1
 			self.board.append(nodeRow)
-
-		#print("Start:  " + str(self.start))
-		#print("Goal:   " + str(self.goal))
-		#print(str(self))
 
 	def __str__(self):
 		ret = ""
@@ -104,6 +96,24 @@ class Maze(object):
 
 	def __hash__(self):
 		return hash((self.current, tuple(self.position)))
+
+	def _build_neighbors(self):
+		ret = []
+		for dir in range(1,5):
+			temp = copy.deepcopy(self)
+			if(temp.move(dir)):
+				ret += [temp]
+
+		return ret
+
+	def getNeighboors(self, graph):
+		if(self in graph):
+			return graph[self]
+		else:
+			neigh = self._build_neighbors()
+			graph[self] = neigh
+			return neigh
+
 
 	def isGoal(self):
 		if(self.board[self.goal[0]][self.goal[1]].getValue() == 1):
@@ -238,25 +248,17 @@ def aStar(graph, initialMaze, heuristic):
 		current = frontier.get().maze
 
 		if current.isGoal():
-			printSearchStats(came_from, graph)
+			print("Nodes visited: " + str(len(came_from.keys())))
+			print("Nodes generated: " + str(len(came_from.keys()) + frontier.qsize()))
 			return buildPath(came_from, current)
 
-		for n in graph[current]:
+		for n in current.getNeighboors(graph):
 			new_cost = cost_so_far[current] + 1
 			if n not in cost_so_far or new_cost < cost_so_far[n]:
 				cost_so_far[n] = new_cost
 				priority = new_cost + heuristic(n)
 				frontier.put(Wrapper(n, priority))
 				came_from[n] = current
-
-
-
-def printSearchStats(parent_graph, graph):
-	nodes_visited = len(parent_graph.keys())
-	nodes_in_graph = len(graph.keys())
-
-	print("Number of nodes visited: " + str(nodes_visited))
-	print("Number of nodes created: " + str(nodes_in_graph))
 
 
 def buildPath(parent_graph, goalNode):
@@ -269,18 +271,11 @@ def buildPath(parent_graph, goalNode):
 
 
 
-def copyMaze(maze):
-	return copy.deepcopy(maze)
 
-def buildNeighboors(maze):
 
-	ret = []
-	for dir in range(1,5):
-		temp = copyMaze(maze)
-		if(temp.move(dir)):
-			ret += [temp]
 
-	return ret
+
+
 
 def printGraphStats(graph):
 	print("Number of possible states: " + str(len(graph.keys())))
@@ -312,18 +307,20 @@ def main():
 	#move_count = 0
 	
 	#print("Number of moves: " + str(move_count))
+	'''
 	graph[initialMaze] = []
 	while([] in graph.values()):
 		newGraph = graph.copy()
 		for key in graph.keys():
 			if len(graph[key]) == 0:
-				neigh = buildNeighboors(key)
+				neigh = _build_neighbors(key)
 				newGraph[key] = neigh
 
 				for n in neigh:
 					if not (n in graph.keys()):
 						newGraph[n] = []
 		graph = newGraph
+	'''
 	'''
 	for m in graph.keys():
 		print("State")
