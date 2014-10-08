@@ -18,22 +18,19 @@ def euclidian_distance(maze):
 
 	return math.sqrt(math.pow(c_row - c_col, 2) + math.pow(g_row - g_col, 2))
 
-def intermediate_goal(maze):
+def multi_goal_distance(maze):
 	c_row, c_col = maze.current
 	g_row, g_col = maze.goal
 
 	diff_row = math.fabs(c_row - g_row)
 	diff_col = math.fabs(c_col - g_col)
 
-	if diff_row % 2 == 0 and diff_col % 2 == 0 and diff_row == diff_col and maze.board[c_row][c_col].getValue() == 1:
-		print(diff_col)
-		return diff_col
+	value = maze.board[c_row][c_col].getValue()
+
+	if diff_row <= 3 and diff_col <= 3:
+		return -100 / (max(diff_row, diff_col) + 1)
 	else:
 		return manhattan_distance(maze)
-
-
-
-
 
 def dummy_heuristic(maze):
 	return 0
@@ -111,8 +108,8 @@ def main():
 	#print("Dummy Heuristic")
 	#results = aStar(graph, initialMaze, dummy_heuristic)
 	#print("-------------------------------------------")
-	print("Intermediate Goals")
-	results = aStar(graph, initialMaze, intermediate_goal)
+	print("Multi-Goal")
+	results = aStar(graph, initialMaze, multi_goal_distance)
 	print("-------------------------------------------")
 
 	#Nuke the graph
@@ -129,10 +126,10 @@ def main():
 	results = aStar(graph, initialMaze, euclidian_distance)
 	print("-------------------------------------------\n\n")
 
-	for i in results:
-		print(i)
+	#for i in results:
+	#	print(i)
 
-	print(len(results))
+	#print(len(results))
 
 
 if __name__ == '__main__':
