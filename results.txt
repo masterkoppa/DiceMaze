@@ -1,0 +1,79 @@
+maze1.txt
+
+Multi-Goal
+Nodes visited: 11
+Nodes generated: 16
+-------------------------------------------
+Manhattan Distance
+Nodes visited: 15
+Nodes generated: 22
+-------------------------------------------
+Euclidian Distance
+Nodes visited: 34
+Nodes generated: 43
+-------------------------------------------
+
+maze2.txt
+
+Multi-Goal
+Nodes visited: 41
+Nodes generated: 55
+-------------------------------------------
+Manhattan Distance
+Nodes visited: 58
+Nodes generated: 76
+-------------------------------------------
+Euclidian Distance
+Nodes visited: 84
+Nodes generated: 98
+-------------------------------------------
+
+
+maze3.txt
+
+Multi-Goal
+No solution
+Nodes visited: 3
+Nodes generated: 3
+-------------------------------------------
+Manhattan Distance
+No solution
+Nodes visited: 3
+Nodes generated: 3
+-------------------------------------------
+Euclidian Distance
+No solution
+Nodes visited: 3
+Nodes generated: 3
+-------------------------------------------
+
+
+maze4.txt
+
+Multi-Goal
+Nodes visited: 121
+Nodes generated: 142
+-------------------------------------------
+Manhattan Distance
+Nodes visited: 100
+Nodes generated: 125
+-------------------------------------------
+Euclidian Distance
+Nodes visited: 143
+Nodes generated: 159
+-------------------------------------------
+
+maze5.txt
+
+Multi-Goal
+Nodes visited: 127
+Nodes generated: 218
+-------------------------------------------
+Manhattan Distance
+Nodes visited: 362
+Nodes generated: 565
+-------------------------------------------
+Euclidian Distance
+Nodes visited: 1275
+Nodes generated: 1280
+-------------------------------------------
